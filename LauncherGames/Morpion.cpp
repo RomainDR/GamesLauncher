@@ -46,7 +46,7 @@ void Morpion::DisplayGrid()
 
 void Morpion::SetChoicePlayer()
 {
-	int _input = Utils::UserChoice<int>("Tour de " + (player1Turn ? name1 : name2) + ".\nSelection de case (0-9): ") -1;
+	int _input = Utils::UserChoice<int>("Tour de " + (player1Turn ? name1 : name2) + ".\nSelection de case (0-9): ") - 1;
 	if (_input < 0 || _input > 9) throw std::exception("Invalid input");
 	int _y = 0;
 	int _x = 0;
@@ -56,7 +56,12 @@ void Morpion::SetChoicePlayer()
 		_input -= 3;
 	}
 	_x = _input;
-	grid[_y][_x] = player1Turn ? 1 : 2;
+	if (IsAvailableCase(_y, _x))
+		grid[_y][_x] = player1Turn ? 1 : 2;
+	else {
+		Utils::Log("[Morpion] => Invalid case");
+		SetChoicePlayer();
+	}
 }
 
 std::string Morpion::GetSymbol(const int& _y, const int& _x)
@@ -64,10 +69,15 @@ std::string Morpion::GetSymbol(const int& _y, const int& _x)
 	return grid[_y][_x] == 0 ? " " : grid[_y][_x] == 1 ? "X" : "O";
 }
 
+bool Morpion::IsAvailableCase(const int& _y, const int& _x)
+{
+	return grid[_y][_x] == 0;
+}
+
 void Morpion::CheckWin()
 {
 	int _y = 0;
-	while (_y < 2) {
+	while (_y < 2 && !isEnded) {
 		if ((grid[_y][0] == 1 && grid[_y][1] == 1 && grid[_y][2] == 1) || (grid[_y][0] == 2 && grid[_y][1] == 2 && grid[_y][2] == 2))
 			SetEnded();
 		else
@@ -75,17 +85,21 @@ void Morpion::CheckWin()
 	}
 	_y = 0;
 	int _x = 0;
-	while (_x < 2) {
+	while (_x < 2 && !isEnded) {
 		if ((grid[0][_x] == 1 && grid[1][_x] == 1 && grid[2][_x] == 1) || (grid[0][_x] == 2 && grid[1][_x] == 2 && grid[2][_x] == 2))
 			SetEnded();
 		else
 			_x++;
 	}
-	if ((grid[0][0] == 1 && grid[1][1] == 1 && grid[2][2] == 1) || (grid[0][0] == 2 && grid[1][1] == 2 && grid[2][2] == 2))
-		SetEnded();
-	if ((grid[0][2] == 1 && grid[1][1] == 1 && grid[2][0] == 1) || (grid[0][2] == 2 && grid[1][1] == 2 && grid[2][0] == 2))
-		SetEnded();
+	if (!isEnded) {
+		if ((grid[0][0] == 1 && grid[1][1] == 1 && grid[2][2] == 1) || (grid[0][0] == 2 && grid[1][1] == 2 && grid[2][2] == 2))
+			SetEnded();
+		if ((grid[0][2] == 1 && grid[1][1] == 1 && grid[2][0] == 1) || (grid[0][2] == 2 && grid[1][1] == 2 && grid[2][0] == 2))
+			SetEnded();
+	}
 	if (IsEnded()) {
+		system("cls");
+		DisplayGrid();
 		Utils::Log("[MORPION] => " + (player1Turn ? name1 : name2) + " viens de gagner");
 		system("pause");
 	}

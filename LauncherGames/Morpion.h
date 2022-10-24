@@ -25,8 +25,9 @@ public:
 private:
 	void DisplayGrid();
 	void SetChoicePlayer();
-	std::string GetSymbol(const int& _y, const int& _x);
 	void CheckWin();
+	std::string GetSymbol(const int& _y, const int& _x);
+	bool IsAvailableCase(const int& _y, const int& _x);
 public:
 	bool IsEnded() const override;
 	void SetEnded();
